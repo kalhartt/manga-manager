@@ -15,6 +15,34 @@ LOG = logging.getLogger('manga')
 # CONSTANTS
 ##########
 MAXRETRIES = 5
+VALIDCHARS = "%'_-.()".join( chr(x) for x in range(48,58)+range(65,91)+range(97,123) )
+REPLACECHARS = {
+		' ':'%20',
+		'"':'%22',
+		'#':'%23',
+		'$':'%24',
+		'&':'%26',
+		'+':'%2B',
+		',':'%2C',
+		'/':'%2F',
+		':':'%3A',
+		';':'%3B',
+		'<':'%3C',
+		'=':'%3D',
+		'>':'%3E',
+		'?':'%3F',
+		'@':'%40',
+		'[':'%5B',
+		'\\':'%5C',
+		']':'%5D',
+		'^':'%5E',
+		'`':'%60',
+		'{':'%7B',
+		'|':'%7C',
+		'}':'%7D',
+		'~':'%7E',
+		}
+
 
 ##########
 # FUNCTIONS
@@ -121,4 +149,31 @@ def downloadImage(url, filename):#{{{
 	imagefile = file(filename, 'wb')
 	imagefile.write( image )
 	imagefile.close()#}}}
+
+def URLtoFilename( url ):#{{{
+	"""
+	Helper to extract animea's naming scheme from a chapter's firstpage url
+
+	arguments:
+	url -- url to first page of a chapter
+
+	return:
+	valid filename from animea's naming scheme
+	"""
+	pass#}}}
+
+def URLSafe( name ):#{{{
+	"""
+	Helper to turn a query into it's url safe equivalent
+
+	argument:
+	name -- string to be encoded into url
+
+	result:
+	its urlsafe equivalent
+	"""
+	for key, value in REPLACECHARS.items():
+		name = name.replace( key, value )
+	result = ''.join( c for c in name if c in VALIDCHARS )
+	return result#}}}
 

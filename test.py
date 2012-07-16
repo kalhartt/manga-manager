@@ -1,54 +1,35 @@
 #!/usr/bin/env python2
-import os, subprocess, threading, time, logging
+import os, logging
 from manga import animea
 from manga import mangafox
 
+## show logging output
 logging.basicConfig( level=logging.DEBUG )
 
-url = 'http://mangafox.me/manga/1_2_prince/'
-path = os.expandUser('~/manga/1_2_prince')
-tmppaths = [ os.path.join( path, 'tmp%d' % n ) for n in range(1,6) ]
-for tmppath in tmppaths:
-	if not os.path.exists( tmppath ):
-		os.makedirs( tmppath )
-failed = []
+## choose a manga database
+mangadb = animea
 
-def getChapter( name, url ):
-	tmppath = tmppaths.pop()
+## Search for a manga, returns a list of 2-tuples
+searchresults = mangadb.search( 'myst' )
+for result in searchresults:
+	print result[0], result[1]
 
-	try:
-		print "Downloading chapter: " + name
-		mangafox.downloadChapter( chapterURL, tmppath )
-	except Exception as err:
-		print "Downloading chapter %s failed widh %s" % (name, err)
-		failed.append( name )
-	else:
-		print "Converting to pdf"
-		infile = os.path.join( tmppath, '*' )
-		nicename = mangafox.URLtoFilename( url )
-		outfile = os.path.join( path, nicename+'.pdf' )
-		subprocess.call([ 'convert', infile, outfile ])
+## for example we will take the first result
+name, url = searchresults[0]
 
-	print "Cleaning tmp directory"
-	for afile in os.listdir( tmppath ):
-		os.unlink( os.path.join( tmppath, afile ) )
-	
-	tmppaths.append( tmppath )
+## Get the chapter list
+chapters = mangadb.listChapters( url )
+for chapter in chapters:
+	print chapter[0], chapter[1]
 
-for name, chapterURL in mangafox.listChapters(url):
-	while len(tmppaths)==0:
-		time.sleep(0.2)
-	thread = threading.Thread( target=getChapter, args=[name,chapterURL] )
-	thread.start()
-	time.sleep(0.1)
+## Lets download the first chapter
+## I'm using unix paths, we just need the folder to download to
+## the mangadb's provide a way to get filenamesafe chapter names
+chapterURL = chapters[0][1]
+downloadPath = os.path.expanduser( '~/manga' )
+nicename = mangadb.URLtoFilename( chapterURL )
+foldername = os.path.join( downloadPath, nicename )
+if not os.path.exists( foldername ): os.makedirs( foldername )
 
-while threading.activeCount() > 1:
-	time.sleep(0.2)
-
-if failed:
-	print "completed with errors"
-	for name in failed:
-		print name
-else:
-	print "completed"
-
+## Begin download
+mangadb.downloadChapter( chapterURL, foldername )

@@ -21,6 +21,7 @@ openURL = common.openURL
 soupURL = common.soupURL
 downloadImage = common.downloadImage
 downloadChapters = common.downloadChapters
+URLSafe = common.URLSafe
 
 ## beautiful soup helper filter
 chaptersearch = lambda x: x.has_key('href') and x.has_key('id') and x.has_key('title')
@@ -35,7 +36,7 @@ def search(query):#{{{
 	return:
 	list of (name, url) tuples of matches
 	"""
-	(soup, headers) = soupURL( URLBASE + URLSEARCH % query )
+	(soup, headers) = soupURL( URLBASE + URLSEARCH % URLSafe(query) )
 	result = []
 	for link in soup.find_all( 'a', 'manga_title' ):
 		result.append( ( link.get_text(), URLBASE+link.get('href')[1:] ) )

@@ -22,6 +22,7 @@ openURL = common.openURL
 soupURL = common.soupURL
 downloadImage = common.downloadImage
 downloadChapters = common.downloadChapters
+URLSafe = common.URLSafe
 
 # Useful beautifulsoup filters
 searchresult = lambda x: x.has_key('class') and x.has_key('href') and x.has_key('rel') and not x.has_key('onclick')
@@ -37,7 +38,7 @@ def search(query):#{{{
 	return:
 	list of (name, url) tuples of matches
 	"""
-	(soup, headers) = soupURL( URLBASE + URLSEARCH % query )
+	(soup, headers) = soupURL( URLBASE + URLSEARCH % URLSafe(query) )
 	result = []
 	for link in soup.find_all( searchresult ):
 		name = link.get_text()
