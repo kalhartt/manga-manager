@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 __all__ = [
 		'site',
-		#'animea',
+		'animea',
 		#'mangable',
 		'mangafox',
 		#'mangahere',
