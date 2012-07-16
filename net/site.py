@@ -79,6 +79,7 @@ class site(object):
 			except urllib2.URLError as err:
 				retry += 1
 				if retry == maxRetry:
+					print url
 					raise err
 			else:
 				break

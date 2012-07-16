@@ -49,11 +49,11 @@ class animea(site):
 		(soup, headers) = self.soupURL( url )
 		result = []
 		for link in soup.find_all( self.chapterresult ):
-			result.append( ( link.get_text(), self.urlbase+link.get('href')[1:] ) )
-		return result
+			result.append( ( link.get_text(), (self.urlbase+link.get('href')[1:]).replace(' ','%20') ) )
+		return result[::-1]
 		#}}}
 	
-	def downloadChapter(self, url, path):#{{{
+	def downloadChapter(self, url, path, verbose=False):#{{{
 		"""
 		Download a specific chapter 
 
@@ -62,7 +62,7 @@ class animea(site):
 		path -- folder to save into
 		"""
 		assert os.path.isdir( path ), "path does not exist"
-		baseurl = url.rsplit('-',1)[0]
+		baseurl = url.rsplit('.',1)[0]
 		(soup, headers) = self.soupURL( url ) ## First page
 		
 		## Get total number of pages
@@ -72,9 +72,13 @@ class animea(site):
 
 		## start saving pages
 		for page in range(1, maxpages):
-			print '%s-%d.html' % (baseurl,page) 
-			(soup, headers) = self.soupURL( '%s-%d.html' % (baseurl,page) )
-			imgurl = soup.find('img', {'class':'mangaimg'}).get('src')
-			imgpath = os.path.join( path, impathbase % (page,os.path.splitext(imgurl)[1]) )
+			if verbose: print "Downloading page:\t%d" % page
+			(soup, headers) = self.soupURL( '%s-page-%d.html' % (baseurl,page) )
+			try:
+				imgurl = soup.find('img', {'class':'mangaimg'}).get('src')
+				imgpath = os.path.join( path, impathbase % (page,os.path.splitext(imgurl)[1]) )
+			except Exception as e:
+				print '%s-%d.html' % (baseurl,page)
+				raise e
 			self.downloadImage( imgurl, imgpath )
 		#}}}

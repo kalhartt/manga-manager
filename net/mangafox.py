@@ -50,11 +50,11 @@ class mangafox(site):
 		(soup, headers) = self.soupURL( url )
 		result = []
 		for link in soup.find_all( self.chapterresult):
-			result.append( ( link.get_text(), link.get('href') ) )
+			result.append( ( link.get_text(), link.get('href').replace(' ','%20') ) )
 		return result
 		#}}}
 	
-	def downloadChapter(self, url, path):#{{{
+	def downloadChapter(self, url, path, verbose=False):#{{{
 		"""
 		Download a specific chapter 
 
@@ -73,6 +73,7 @@ class mangafox(site):
 
 		## start saving pages
 		for page in range(1, maxpages):
+			if verbose: print "Downloading page:\t%d" % page
 			(soup, headers) = self.soupURL( '%s/%d.html' % (baseurl,page) )
 			imgurl = soup.img.get('src')
 			imgpath = os.path.join( path, impathbase % (page,os.path.splitext(imgurl)[1]) )
