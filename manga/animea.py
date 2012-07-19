@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 ##########
 # CONSTANTS
 ##########
+NAME = 'AnimeA'
 log = common.LOG
 URLBASE = 'http://manga.animea.net/'
 URLSEARCH = 'search.html?title=%s'

@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 """
-Provides standardized interface to animea manga site
+Provides standardized interface to mangafox manga site
 """
 import urllib2, os
 import common
@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 ##########
 # CONSTANTS
 ##########
+NAME = 'MangaFox'
 log = common.LOG
 URLBASE = 'http://www.mangafox.me/'
 URLSEARCH = 'search.php?name=%s'
