@@ -15,6 +15,7 @@ LOG = logging.getLogger('manga')
 # CONSTANTS
 ##########
 NAME = 'Common'
+URLBASE = 'http://www.example.com/'
 MAXRETRIES = 5
 VALIDCHARS = "%'_-.()".join( chr(x) for x in range(48,58)+range(65,91)+range(97,123) )
 REPLACECHARS = {
@@ -162,6 +163,18 @@ def URLtoFilename( url ):#{{{
 	valid filename from animea's naming scheme
 	"""
 	pass#}}}
+
+def URLtoFoldername( url ):#{{{
+	"""
+	Helper to extract mangafox's naming scheme from a chapter's mainpage url
+
+	arguments:
+	url -- url to mainpage of a manga 
+
+	return:
+	valid filename from mangafox's naming scheme
+	"""
+	pass #}}}
 
 def URLSafe( name ):#{{{
 	"""

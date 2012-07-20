@@ -70,19 +70,19 @@ def downloadChapter(url, path):#{{{
 	path -- folder to save into
 	"""
 	assert os.path.isdir( path ), "path does not exist"
-	log.info('Downloading Chapter at: %s' % url)
+	log.debug('Downloading Chapter at: %s' % url)
 	baseurl = url.rsplit('.',1)[0]
 	(soup, headers) = soupURL( url )
 	
 	## Get total number of pages
 	pagelist = soup.find('select', {'class':'mangaselecter pageselect', 'name':'page'})
 	maxpages = len(list(pagelist.children))-1
-	log.info('Chapter has pages: %d' % maxpages)
-	impathbase = '%0' + str(len(str(maxpages))) + 'd%s'
+	log.debug('Chapter has pages: %d' % maxpages)
+	impathbase = URLtoFilename(url)+'_%0' + str(len(str(maxpages))) + 'd%s'
 
 	## start saving pages
 	for page in range(1, maxpages):
-		log.info('Downloading page: %d/%d' % (page,maxpages))
+		log.debug('Downloading page: %d/%d' % (page,maxpages))
 		(soup, headers) = soupURL( '%s-page-%d.html' % (baseurl,page) )
 		try:
 			imgurl = soup.find('img', {'class':'mangaimg'}).get('src')
@@ -108,5 +108,19 @@ def URLtoFilename( url ):#{{{
 		name = split.split('-page-')[0].replace('-','_').replace(' ','')
 	else:
 		name = split.split('.html')[0].replace('-','_').replace(' ','')
+	return name
+	#}}}
+
+def URLtoFoldername( url ):#{{{
+	"""
+	Helper to extract mangafox's naming scheme from a chapter's mainpage url
+
+	arguments:
+	url -- url to mainpage of a manga 
+
+	return:
+	valid filename from mangafox's naming scheme
+	"""
+	name = url.split('/')[-1][:-5]
 	return name
 	#}}}

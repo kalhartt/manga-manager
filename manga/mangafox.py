@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 ##########
 NAME = 'MangaFox'
 log = common.LOG
-URLBASE = 'http://www.mangafox.me/'
+URLBASE = 'http://mangafox.me/'
 URLSEARCH = 'search.php?name=%s'
 
 
@@ -79,19 +79,19 @@ def downloadChapter(url, path):#{{{
 	path -- folder to save into
 	"""
 	assert os.path.isdir( path ), "path does not exist"
-	log.info('Downloading Chapter at: %s' % url)
+	log.debug('Downloading Chapter at: %s' % url)
 	baseurl = url.rsplit('/',1)[0]
 	(soup, headers) = soupURL( url ) ## First page
 	
 	## Get total number of pages
 	pagelist = soup.find('select', {'class':'m', 'onchange':'change_page(this)'})
 	maxpages = len(list(pagelist.children))-3
-	log.info('Chapter has pages: %d' % maxpages)
-	impathbase = '%0' + str(len(str(maxpages))) + 'd%s'
+	log.debug('Chapter has pages: %d' % maxpages)
+	impathbase = URLtoFilename(url)+'_%0' + str(len(str(maxpages))) + 'd%s'
 
 	## start saving pages
 	for page in range(1, maxpages):
-		log.info('Downloading page: %d/%d' % (page,maxpages))
+		log.debug('Downloading page: %d/%d' % (page,maxpages))
 		(soup, headers) = soupURL( '%s/%d.html' % (baseurl,page) )
 		try:
 			imgurl = soup.img.get('src')
@@ -114,5 +114,19 @@ def URLtoFilename( url ):#{{{
 	"""
 	split = url.split('/')
 	name = ('%s_%s_%s' % (split[4],split[5],split[6])).replace('-','_').replace(' ','')
+	return name
+	#}}}
+
+def URLtoFoldername( url ):#{{{
+	"""
+	Helper to extract mangafox's naming scheme from a chapter's mainpage url
+
+	arguments:
+	url -- url to mainpage of a manga 
+
+	return:
+	valid filename from mangafox's naming scheme
+	"""
+	name = url.split('/')[-2]
 	return name
 	#}}}
