@@ -114,6 +114,7 @@ def URLtoFilename( url ):#{{{
 	"""
 	split = url.split('/')
 	name = ('%s_%s_%s' % (split[4],split[5],split[6])).replace('-','_').replace(' ','')
+	name = filenameSafe(name)
 	return name
 	#}}}
 

@@ -18,7 +18,7 @@ NAME = 'Common'
 URLBASE = 'http://www.example.com/'
 MAXRETRIES = 5
 VALIDCHARS = "%'_-.()".join( chr(x) for x in range(48,58)+range(65,91)+range(97,123) )
-REPLACECHARS = {
+REPLACECHARS = {#{{{
 		' ':'%20',
 		'"':'%22',
 		'#':'%23',
@@ -43,7 +43,8 @@ REPLACECHARS = {
 		'|':'%7C',
 		'}':'%7D',
 		'~':'%7E',
-		}
+		}#}}}
+REPLACECHARSREVERSE = dict( reversed(item) for item in REPLACECHARS.items() )
 
 
 ##########
@@ -191,3 +192,17 @@ def URLSafe( name ):#{{{
 	result = ''.join( c for c in name if c in VALIDCHARS )
 	return result#}}}
 
+def  filenameSafe( url ):
+	"""
+	Helper to turn a urlsubstring into it's filename safe equivalent
+
+	argument:
+	url -- string to be encoded converted to filename
+
+	result:
+	its filename safe equivalent
+	"""
+	for key, value in REPLACECHARSREVERSE.items():
+		url = url.replace( key, value )
+	result = ''.join( c for c in url if c in VALIDCHARS )
+	return result#}}}

@@ -23,6 +23,7 @@ soupURL = common.soupURL
 downloadImage = common.downloadImage
 downloadChapters = common.downloadChapters
 URLSafe = common.URLSafe
+filenameSafe = common.filenameSafe
 
 ## beautiful soup helper filter
 chaptersearch = lambda x: x.has_key('href') and x.has_key('id') and x.has_key('title')
@@ -83,8 +84,8 @@ def downloadChapter(url, path):#{{{
 	## start saving pages
 	for page in range(1, maxpages):
 		log.debug('Downloading page: %d/%d' % (page,maxpages))
-		(soup, headers) = soupURL( '%s-page-%d.html' % (baseurl,page) )
 		try:
+			(soup, headers) = soupURL( '%s-page-%d.html' % (baseurl,page) )
 			imgurl = soup.find('img', {'class':'mangaimg'}).get('src')
 			imgpath = os.path.join( path, impathbase % (page,os.path.splitext(imgurl)[1]) )
 			downloadImage( imgurl, imgpath )
@@ -108,6 +109,7 @@ def URLtoFilename( url ):#{{{
 		name = split.split('-page-')[0].replace('-','_').replace(' ','')
 	else:
 		name = split.split('.html')[0].replace('-','_').replace(' ','')
+	name = filenameSafe(name)
 	return name
 	#}}}
 
