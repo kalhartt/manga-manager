@@ -84,7 +84,7 @@ def query( searchq, databases=None ):#{{{
 	if databases == None:
 		databases = mangadb
 	for db in databases:
-		results = db.search( searchq )
+		results = db.search( ' '.join(searchq) )
 		for result in results:
 			print '%s\t%s' % (result[0],result[1])#}}}
 
@@ -141,6 +141,7 @@ parser.add_argument(
 		help = 'List available manga databases')
 parser.add_argument(
 		'-q', '--query',
+		nargs = '+',
 		action = 'store',
 		help = 'Query database(s) for a manga')
 parser.add_argument(
