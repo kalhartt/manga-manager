@@ -24,6 +24,7 @@ soupURL = common.soupURL
 downloadImage = common.downloadImage
 downloadChapters = common.downloadChapters
 URLSafe = common.URLSafe
+filenameSafe = common.filenameSafe
 
 # Useful beautifulsoup filters
 searchresult = lambda x: x.has_key('class') and x.has_key('href') and x.has_key('rel') and not x.has_key('onclick')
