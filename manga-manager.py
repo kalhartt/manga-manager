@@ -21,12 +21,37 @@ MMLOG = os.path.join( MMDIR, 'mmlog' )
 MMCFG = os.path.join( MMDIR, 'mmcfg' )
 MAXTHREADS = 5
 DEFAULTOPTS = {
-		'pdfbin':'zathura',
+		'pdfbin':'evince',
 		}
 
 ##########
 # FUNCTIONS
 ##########
+
+def mangaStatus():#{{{
+	"""
+	Print/return a list of manga and current reading status
+	Dont display ones who are up to date on reading
+	"""
+	if os.path.isfile( MMFILE ):
+		folders = [ os.getcwd() ]
+	else:
+		folders = sorted(filter( lambda x: os.path.isfile(os.path.join(x,MMFILE)), os.listdir(os.getcwd()) ))
+
+	result = []
+	n = 1
+	for folder in folders:
+		mmfile = open(os.path.join( folder, MMFILE ), 'r')
+		mmfile.readline()
+		for line in mmfile.readlines():
+			chapter, status = line.rstrip().split(' = ')
+			if status == 'unread':
+				print '[%d] %s - %s' % (n,os.path.basename(folder), chapter)
+				result.append( (folder,chapter) )
+				n += 1
+				break
+	return result
+	#}}}
 
 def listDB():#{{{
 	"""
@@ -154,16 +179,14 @@ def readManga( folder ):#{{{
 		if os.path.isfile( MMFILE ):
 			folder = ''
 		else:
-			mangaFolders = filter( lambda x: os.path.isfile(os.path.join(x,MMFILE)), os.listdir(os.getcwd()) )
-			if not mangaFolders:
-				print 'Cannot find manga'
+			unreadManga = mangaStatus()
+			if not unreadManga:
+				print 'Cannot find unread manga'
 				return
-			for n in range(len(mangaFolders)):
-				print '[%d] %s' % (n+1, mangaFolders[n])
 			sys.stdout.write( 'Select manga: ' )
 			selection = raw_input()
 			try:
-				folder = mangaFolders[ int(selection)-1 ]
+				folder = unreadManga[ int(selection)-1 ][0]
 			except ValueError:
 				return
 			except IndexError:
@@ -337,6 +360,10 @@ parser.add_argument(
 		action = 'store_true',
 		help = 'Read a managed manga')
 parser.add_argument(
+		'-s', '--status',
+		action = 'store_true',
+		help = 'Print reading status')
+parser.add_argument(
 		'-u', '--update',
 		action = 'store_true',
 		help = 'Download missing chapters of manga in current directory or all subdirectories')
@@ -370,4 +397,12 @@ if args.update:
 
 if args.read:
 	readManga(None)
+	exit()
+
+if args.list:
+	listDB()
+	exit()
+
+if args.status:
+	status()
 	exit()

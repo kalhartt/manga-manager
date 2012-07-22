@@ -39,7 +39,6 @@ def search(query):#{{{
 	return:
 	list of (name, url) tuples of matches
 	"""
-	print  URLBASE + URLSEARCH % URLSafe(query).replace('%20','+') 
 	(soup, headers) = soupURL( URLBASE + URLSEARCH % URLSafe(query).replace('%20','+') )
 	searchresults = soup.find( 'div', {'class':'result_search'})
 	if searchresults is None: return []
@@ -88,7 +87,6 @@ def downloadChapter(url, path):#{{{
 	## get pagelist
 	pageselect = soup.find( 'select', {'onchange':'change_page(this)'} )
 	pagelist = [ x.get('value') for x in pageselect.find_all('option') ]
-	print pagelist
 
 	## Get total number of pages
 	maxpages = len(pagelist)
