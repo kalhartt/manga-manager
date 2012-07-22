@@ -404,5 +404,5 @@ if args.list:
 	exit()
 
 if args.status:
-	status()
+	mangaStatus()
 	exit()
