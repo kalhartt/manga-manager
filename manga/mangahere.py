@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 """
-Provides standardized interface to mangafox manga site
+Provides standardized interface to anymanga manga site
 """
 import urllib2, os
 import common
@@ -9,9 +9,9 @@ from bs4 import BeautifulSoup
 ##########
 # CONSTANTS
 ##########
-NAME = 'MangaFox'
+NAME = 'MangaHere'
 log = common.LOG
-URLBASE = 'http://mangafox.me/'
+URLBASE = 'http://www.mangahere.com/'
 URLSEARCH = 'search.php?name=%s'
 
 
@@ -27,7 +27,6 @@ URLSafe = common.URLSafe
 filenameSafe = common.filenameSafe
 
 # Useful beautifulsoup filters
-searchresult = lambda x: x.has_key('class') and x.has_key('href') and x.has_key('rel') and not x.has_key('onclick')
 chapterresult = lambda x: x.has_key('class') and x.has_key('href') and x.has_key('title')
 
 def search(query):#{{{
@@ -40,10 +39,13 @@ def search(query):#{{{
 	return:
 	list of (name, url) tuples of matches
 	"""
-	(soup, headers) = soupURL( URLBASE + URLSEARCH % URLSafe(query) )
+	print  URLBASE + URLSEARCH % URLSafe(query).replace('%20','+') 
+	(soup, headers) = soupURL( URLBASE + URLSEARCH % URLSafe(query).replace('%20','+') )
+	searchresults = soup.find( 'div', {'class':'result_search'})
+	if searchresults is None: return []
 	result = []
-	for link in soup.find_all( searchresult ):
-		name = link.get_text()
+	for link in searchresults.find_all('a', {'class':'name_one'}):
+		name = link.get_text().lstrip()
 		url = link.get('href')
 		result.append( ( name, url  ) )
 	return result
@@ -60,9 +62,13 @@ def listChapters(url):#{{{
 	list of (name, url) tuples of chapters
 	"""
 	(soup, headers) = soupURL( url )
+	chapterdiv = soup.find('div', {'class':'detail_list'}).find('ul')
+	if chapterdiv is None: return []
 	result = []
-	for link in soup.find_all( chapterresult ):
-		result.append( ( link.get_text(), link.get('href').replace(' ','%20') ) )
+	for link in chapterdiv.find_all('a'):
+		name = link.get_text().lstrip().rstrip()
+		url = link.get('href')
+		result.append( ( name, url  ) )
 	return result[::-1]
 	#}}}
 
@@ -79,28 +85,33 @@ def downloadChapter(url, path):#{{{
 	baseurl = url.rsplit('/',1)[0]
 	(soup, headers) = soupURL( url ) ## First page
 	
+	## get pagelist
+	pageselect = soup.find( 'select', {'onchange':'change_page(this)'} )
+	pagelist = [ x.get('value') for x in pageselect.find_all('option') ]
+	print pagelist
+
 	## Get total number of pages
-	pagelist = soup.find('select', {'class':'m', 'onchange':'change_page(this)'})
-	maxpages = len(list(pagelist.children))-3
+	maxpages = len(pagelist)
 	log.debug('Chapter has pages: %d' % maxpages)
 	impathbase = URLtoFilename(url)+'_%0' + str(len(str(maxpages))) + 'd%s'
 
 	## start saving pages
-	for page in range(1, maxpages):
-		log.debug('Downloading page: %d/%d' % (page,maxpages))
-		(soup, headers) = soupURL( '%s/%d.html' % (baseurl,page) )
-		try:
-			imgurl = soup.img.get('src')
-			imgpath = os.path.join( path, impathbase % (page,os.path.splitext(imgurl)[1]) )
+	for n in xrange(maxpages):
+	 	log.debug('Downloading page: %d/%d' % (n+1,maxpages))
+	 	(soup, headers) = soupURL(pagelist[n])
+	 	try:
+			img = soup.find('a', {'onclick': 'return enlarge();'}).img
+			imgurl = img.get('src')
+	 		imgpath = os.path.join( path, impathbase % (n,os.path.splitext(imgurl)[1]) )
 			downloadImage( imgurl, imgpath )
-		except Exception as e:
-			log.error('Downloading page %d failed with %s' % (page,e))
-			raise e
+	 	except Exception as e:
+	 		log.error('Downloading page %d failed with %s' % (n,e))
+	 		raise e
 	#}}}
 
 def URLtoFilename( url ):#{{{
 	"""
-	Helper to extract mangafox's naming scheme from a chapter's firstpage url
+	Helper to extract mangahere's naming scheme from a chapter's firstpage url
 
 	arguments:
 	url -- url to first page of a chapter

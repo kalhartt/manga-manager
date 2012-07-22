@@ -4,7 +4,7 @@ __all__ = [
 		'anymanga',
 		#'mangable',
 		'mangafox',
-		#'mangahere',
+		'mangahere',
 		#'mangareader',
 		#'mangashare',
 		#'mangastream',
